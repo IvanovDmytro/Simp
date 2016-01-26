@@ -1,0 +1,484 @@
+/*
+ * Copyright (C) 2016 Dmytro Ivanov
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.simp.willie.tries;
+
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.Serializable;
+import java.util.AbstractCollection;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+@SuppressWarnings("PMD.GodClass")
+public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializable, Cloneable {
+
+    private static final long serialVersionUID = -3275675110121867083L;
+
+    @SuppressWarnings("PMD.ShortClassName")
+    static final class Node<V> {
+
+        V mValue;
+
+        Map<Character, Node<V>> mChildren;
+
+        Node() {
+            mValue = null;
+            mChildren = new HashMap<>();
+        }
+
+        boolean hasValue() {
+            return mValue != null;
+        }
+
+        boolean hasChildren() {
+            return !mChildren.isEmpty();
+        }
+
+        Node<V> getChildFor(Character character) {
+            return mChildren.get(character);
+        }
+
+        void addChild(Character character, Node<V> child) {
+            mChildren.put(character, child);
+        }
+
+        void removeChild(Character character) {
+            mChildren.remove(character);
+        }
+
+        Set<Map.Entry<Character, Node<V>>> children() {
+            return mChildren.entrySet();
+        }
+
+    }
+
+    transient volatile Set<Map.Entry<String, V>> mEntriesView;
+
+    transient volatile Set<String> mKeysView;
+
+    transient volatile Collection<V> mValuesView;
+
+    /**
+     * The number of times this HashTrie has been structurally modified.
+     * This field is used to make iterators on Collection-views of
+     * the HashTrie fail-fast.
+     */
+    transient int mModCount;
+
+    transient int mSize;
+
+    transient Node<V> mRoot;
+
+    public HashTrie() {
+        mSize = 0;
+        mRoot = new Node<>();
+    }
+
+    @Override
+    public int size() {
+        return mSize;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return mSize == 0;
+    }
+
+    @Override
+    public boolean containsKey(String key) {
+        return get(key) != null;
+    }
+
+    @Override
+    public V get(String key) {
+        checkKey(key);
+
+        final Node<V> node = findNode(key);
+        return node == null ? null : node.mValue;
+    }
+
+    final Node<V> findNode(String key) {
+        int keyIndex = 0;
+        Node<V> node = mRoot;
+        while (keyIndex < key.length() && node != null) {
+            node = node.getChildFor(key.charAt(keyIndex));
+
+            keyIndex++;
+        }
+
+        return node;
+    }
+
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @Override
+    public V put(String key, V value) {
+        checkKey(key);
+        checkValue(value);
+
+        mModCount++;
+
+        Node<V> node = mRoot;
+        for (int i = 0; i < key.length(); i++) {
+            final Character currChar = key.charAt(i);
+
+            Node<V> nextNode = node.getChildFor(currChar);
+            if (nextNode == null) {
+                nextNode = new Node<>();
+                node.addChild(currChar, nextNode);
+            }
+
+            node = nextNode;
+        }
+
+        if (!node.hasValue()) {
+            mSize++;
+        }
+
+        node.mValue = value;
+
+        return value;
+    }
+
+    @Override
+    public V remove(String key) {
+        checkKey(key);
+
+        mModCount++;
+
+        // path needed to clean up path after
+        Node[] path = new Node[key.length() + 1];
+
+        int keyIndex = 0;
+        Node<V> node = mRoot;
+        while (keyIndex < key.length() && node != null) {
+            path[key.length() - keyIndex] = node;
+            node = node.getChildFor(key.charAt(keyIndex));
+
+            keyIndex++;
+        }
+
+        if (node == null || !node.hasValue()) {
+            throw new IllegalArgumentException("Could not remove node that does not exists.");
+        }
+
+        final V value = node.mValue;
+
+        node.mValue = null;
+        mSize--;
+
+        // clean up unnecessary nodes
+        path[0] = node;
+        for (int i = 0; i < path.length - 1; i++) {
+            if (path[i].hasChildren() || path[i].hasValue()) {
+                break;
+            } else {
+                path[i + 1].removeChild(key.charAt(key.length() - i - 1));
+            }
+        }
+
+        return value;
+    }
+
+    final void checkKey(String key) {
+        if (key == null) {
+            throw new NullPointerException("Key could not be null.");
+        }
+
+        if (key.length() == 0) {
+            throw new IllegalArgumentException("Key could not be empty string.");
+        }
+
+        for (int i = 0; i < key.length(); i++) {
+            if (!Character.isLetterOrDigit(key.charAt(i))) {
+                throw new IllegalArgumentException("Key should contain just letter or digit.");
+            }
+        }
+    }
+
+    final void checkValue(V value) {
+        if (value == null) {
+            throw new NullPointerException("Value could not be null.");
+        }
+    }
+
+    @Override
+    public void clear() {
+        mModCount++;
+        mSize = 0;
+        mRoot = new Node<>();
+    }
+
+    @Override
+    public Set<String> keys() {
+        Set<String> keySet;
+        return (keySet = mKeysView) == null ? (mKeysView = new KeySet(mRoot, "")) : keySet;
+    }
+
+    @Override
+    public Set<String> keysWithPrefix(String prefix) {
+        checkKey(prefix);
+
+        final Node<V> node = findNode(prefix);
+
+        return node == null ? Collections.<String>emptySet() : new KeySet(node, prefix);
+    }
+
+    final class KeySet extends AbstractSet<String> {
+
+        Node<V> mNode;
+        String mPrefix;
+
+        KeySet(Node<V> node, String prefix) {
+            mNode = node;
+            mPrefix = prefix;
+        }
+
+        public int size() {
+            return mSize;
+        }
+
+        public Iterator<String> iterator() {
+            return new KeyIterator(mNode, mPrefix);
+        }
+
+    }
+
+    @Override
+    public Collection<V> values() {
+        Collection<V> valuesCollection;
+        return (valuesCollection = mValuesView) == null ? (mValuesView = new Values()) : valuesCollection;
+    }
+
+    final class Values extends AbstractCollection<V> {
+
+        public int size() {
+            return mSize;
+        }
+
+        public Iterator<V> iterator() {
+            return new ValueIterator();
+        }
+
+    }
+
+    @Override
+    public Set<Map.Entry<String, V>> entrySet() {
+        Set<Map.Entry<String, V>> entriesView;
+        return (entriesView = mEntriesView) == null ? (mEntriesView = new EntrySet()) : entriesView;
+    }
+
+    final class EntrySet extends AbstractSet<Map.Entry<String, V>> {
+
+        public int size() {
+            return mSize;
+        }
+
+        public Iterator<Map.Entry<String, V>> iterator() {
+            return new EntryIterator();
+        }
+
+    }
+
+    @SuppressWarnings({"PMD.AbstractClassWithoutAbstractMethod", "PMD.AvoidStringBufferField"})
+    abstract class DfsIterator {
+        Map.Entry<String, V> mNextEntry;
+        StringBuilder mStringBuilder;
+        Deque<Iterator<Map.Entry<Character, Node<V>>>> mIteratorPath;
+        int mExpectedModCount;
+
+        DfsIterator() {
+            this(mRoot, "");
+        }
+
+        DfsIterator(Node<V> initialNode, String prefix) {
+            mExpectedModCount = mModCount;
+            mIteratorPath = new ArrayDeque<>();
+
+            if (initialNode.hasValue()) {
+                final Node<V> fakeStartNode = new Node<>();
+                fakeStartNode.addChild(prefix.charAt(prefix.length() - 1), initialNode);
+
+                mStringBuilder = new StringBuilder(prefix.substring(0, prefix.length() - 1));
+                mIteratorPath.add(fakeStartNode.children().iterator());
+            } else {
+                mStringBuilder = new StringBuilder();
+                mIteratorPath.add(initialNode.children().iterator());
+            }
+
+            updateNextEntry();
+        }
+
+        public final boolean hasNext() {
+            return mNextEntry != null;
+        }
+
+        final void updateNextEntry() {
+            Node<V> nodeWithValue = null;
+            Iterator<Map.Entry<Character, Node<V>>> nodeIterator = mIteratorPath.getFirst();
+            while (nodeWithValue == null
+                    && (nodeIterator.hasNext() || mStringBuilder.length() > 0 && mIteratorPath.size() > 1)) {
+                if (nodeIterator.hasNext()) {
+                    final Map.Entry<Character, Node<V>> nextChild = nodeIterator.next();
+
+                    nodeIterator = nextChild.getValue().children().iterator();
+
+                    mStringBuilder.append(nextChild.getKey());
+                    mIteratorPath.addFirst(nodeIterator);
+
+                    if (nextChild.getValue().hasValue()) {
+                        nodeWithValue = nextChild.getValue();
+                    }
+                } else {
+                    mIteratorPath.removeFirst();
+                    mStringBuilder.deleteCharAt(mStringBuilder.length() - 1);
+
+                    nodeIterator = mIteratorPath.getFirst();
+                }
+            }
+
+            mNextEntry = nodeWithValue == null
+                    ? null
+                    : new AbstractMap.SimpleEntry<>(mStringBuilder.toString(), nodeWithValue.mValue);
+        }
+
+        final Map.Entry<String, V> nextEntry() {
+            if (mExpectedModCount != mModCount) {
+                throw new ConcurrentModificationException();
+            }
+
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+
+            final Map.Entry<String, V> currEntry = mNextEntry;
+
+            updateNextEntry();
+
+            return currEntry;
+        }
+
+        public final void remove() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    final class KeyIterator extends DfsIterator implements Iterator<String> {
+        KeyIterator(Node<V> node, String prefix) {
+            super(node, prefix);
+        }
+
+        public String next() {
+            return nextEntry().getKey();
+        }
+    }
+
+    final class ValueIterator extends DfsIterator implements Iterator<V> {
+        public V next() {
+            return nextEntry().getValue();
+        }
+    }
+
+    final class EntryIterator extends DfsIterator implements Iterator<Map.Entry<String, V>> {
+        public Map.Entry<String, V> next() {
+            return nextEntry();
+        }
+    }
+
+    /**
+     * Returns a shallow copy of this {@code HashTrie} instance: the keys and
+     * values themselves are not cloned.
+     *
+     * @return a shallow copy of this trie
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public HashTrie<V> clone() {
+        HashTrie<V> result;
+
+        try {
+            result = (HashTrie<V>) super.clone();
+        } catch (CloneNotSupportedException e) {
+            // this shouldn't happen, since we are Cloneable
+            throw new InternalError(e);
+        }
+
+        result.reinitialize();
+
+        for (Map.Entry<String, V> entry : entrySet()) {
+            result.put(entry.getKey(), entry.getValue());
+        }
+
+        return result;
+    }
+
+    /**
+     * Save the state of the {@code HashTrie} instance to a stream (i.e., serialize it).
+     *
+     * @serialData The <i>size</i> (an int, the number of key-value mappings), followed by the
+     * key (String) and value (Object) for each key-value mapping.  The key-value mappings are
+     * emitted in no particular order.
+     */
+    private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
+        stream.writeInt(mSize);
+
+        for (Map.Entry<String, V> entry : entrySet()) {
+            stream.writeObject(entry.getKey());
+            stream.writeObject(entry.getValue());
+        }
+    }
+
+    /**
+     * Reconstitute the {@code HashTrie} instance from a stream (i.e., deserialize it).
+     */
+    private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        reinitialize();
+
+        final int size = stream.readInt();
+        if (size < 0) {
+            throw new InvalidObjectException("Illegal size: " + size);
+        } else if (size > 0) { // (if zero, use defaults)
+            for (int i = 0; i < size; i++) {
+                final String key = (String) stream.readObject();
+                @SuppressWarnings("unchecked")
+                final V value = (V) stream.readObject();
+                put(key, value);
+            }
+        }
+    }
+
+    /**
+     * Reset to initial default state.  Called by {@code clone} and {@code readObject}.
+     */
+    final void reinitialize() {
+        mRoot = new Node<>();
+        mKeysView = null;
+        mValuesView = null;
+        mEntriesView = null;
+        mModCount = 0;
+        mSize = 0;
+    }
+
+}

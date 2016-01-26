@@ -1,0 +1,13 @@
+apply plugin: 'java'
+apply from: '../quality/pmd.gradle'
+apply from: '../quality/findbugs.gradle'
+apply from: '../quality/checkstyle.gradle'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+dependencies {
+    testCompile junit
+    testCompile mockito
+    testCompile hamcrestLibrary
+}

@@ -1,0 +1,9 @@
+apply plugin: 'findbugs'
+
+findbugs {
+    toolVersion = '3.0.1'
+    effort = "max"
+
+    reportLevel = "high"
+    excludeFilter = new File("${project.rootDir}/quality/findbugs-exclude-filter.xml")
+}

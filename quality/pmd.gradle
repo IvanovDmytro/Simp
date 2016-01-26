@@ -1,0 +1,9 @@
+apply plugin: 'pmd'
+
+pmd {
+    toolVersion = '5.4.1'
+    ruleSetFiles = files("${project.rootDir}/quality/pmd-ruleset.xml")
+    ruleSets = []
+
+    sourceSets = [sourceSets.main]
+}
