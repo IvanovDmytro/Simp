@@ -1,19 +1,19 @@
-#Tue Jan 26 15:49:21 GMT 2016
+#Fri Jan 29 12:15:48 GMT 2016
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/CharsArray.java=1451921090000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/arrays/GenericArray.java=1453820075000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/LongsArray.java=1451921126000
-/Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/tries/PrefixTree.java=1453822168000
+/Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/tries/PrefixTree.java=1454003424000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/arrays/FloatsArray.java=1453820075000
-/Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/tries/HashTrie.java=1453823359000
+/Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/tries/HashTrie.java=1454069745000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/BooleansArray.java=1451920184000
-/Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/tries/AbstractTrie.java=1453822215000
+/Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/tries/AbstractTrie.java=1454069497000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/BytesArray.java=1451921090000
 /Users/divanov/Development/Simp/willie/src/test/java/org/simp/willie/ThreadSafeArraysTest.java=1451919432000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/IntsArray.java=1451921126000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/StringsArray.java=1451921126000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/arrays/IntsArray.java=1453820075000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/FloatsArray.java=1451921090000
-/Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/tries/Tries.java=1453820075000
+/Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/tries/Tries.java=1454069006000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/arrays/BooleansArray.java=1453820075000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/GenericArray.java=1451921126000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/arrays/CharsArray.java=1453820075000
@@ -21,8 +21,8 @@
 configuration*?=7BD95D3BEE57CAE315AFA6688E187DE8B1B82055
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/arrays/BytesArray.java=1453820075000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/arrays/StringsArray.java=1453820075000
-/Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/tries/Trie.java=1453820390000
-/Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/arrays/DoublesArray.java=1453820075000
+/Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/tries/Trie.java=1454063169000
+/Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/arrays/DoublesArray.java=1453825565000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/ShortsArray.java=1451921126000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/arrays/ShortsArray.java=1453820075000
 /Users/divanov/Development/Simp/willie/src/main/java/org/simp/willie/DoublesArray.java=1451921090000
