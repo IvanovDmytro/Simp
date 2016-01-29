@@ -32,16 +32,72 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+/**
+ * {@code Trie} interface implementation that uses {@code HashMap} in the node
+ * to store references to the children.  This implementation provides all of the
+ * optional trie operations.
+ *
+ * <p>This implementation provides O(S), where is S is lenght of the key
+ * performance for the basic operations ({@code get} and {@code put}).
+ * Iteration over collection views requires time proportional to the size of the
+ * {@code Trie} instance.
+ *
+ * <p><strong>Note that this implementation is not synchronized.</strong>
+ * If multiple threads access a trie concurrently, and at least one of
+ * the threads modifies the trie structurally, it <i>must</i> be
+ * synchronized externally.  (A structural modification is any operation
+ * that adds or deletes one or more mappings; merely changing the value
+ * associated with a key that an instance already contains is not a
+ * structural modification.)  This is typically accomplished by
+ * synchronizing on some object that naturally encapsulates the trie.
+ *
+ * <p>The iterators returned by all of this class's "collection view methods"
+ * are <i>fail-fast</i>: if the trie is structurally modified at any time after
+ * the iterator is created, in any way except through the iterator's own
+ * {@code remove} method, the iterator will throw a
+ * {@link ConcurrentModificationException}.  Thus, in the face of concurrent
+ * modification, the iterator fails quickly and cleanly, rather than risking
+ * arbitrary, non-deterministic behavior at an undetermined time in the
+ * future.
+ *
+ * <p>Note that the fail-fast behavior of an iterator cannot be guaranteed
+ * as it is, generally speaking, impossible to make any hard guarantees in the
+ * presence of unsynchronized concurrent modification.  Fail-fast iterators
+ * throw {@code ConcurrentModificationException} on a best-effort basis.
+ * Therefore, it would be wrong to write a program that depended on this
+ * exception for its correctness: <i>the fail-fast behavior of iterators
+ * should be used only to detect bugs.</i>
+ *
+ * @param <V> the type of mapped values
+ *
+ * @author Dmytro Ivanov
+ * @see     Trie
+ */
 @SuppressWarnings("PMD.GodClass")
 public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializable, Cloneable {
 
     private static final long serialVersionUID = -3275675110121867083L;
 
+    /**
+     * Node of the trie.
+     * Keeps references to the children in a {@code Map} that has {@code Character}
+     * as a key and V as an value.
+     *
+     * Provides convenience methods to operate with nodes children.
+     *
+     * @param <V> the type of stored values
+     */
     @SuppressWarnings("PMD.ShortClassName")
     static final class Node<V> {
 
+        /**
+         * Value of the node, null if no value is present.
+         */
         V mValue;
 
+        /**
+         * References to the children, never is {@code null}.
+         */
         Map<Character, Node<V>> mChildren;
 
         Node() {
@@ -75,10 +131,19 @@ public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializabl
 
     }
 
+    /**
+     * Holds cached entrySet().
+     */
     transient volatile Set<Map.Entry<String, V>> mEntriesView;
 
+    /**
+     * Holds cached keySet().
+     */
     transient volatile Set<String> mKeysView;
 
+    /**
+     * Holds cached values().
+     */
     transient volatile Collection<V> mValuesView;
 
     /**
@@ -88,8 +153,14 @@ public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializabl
      */
     transient int mModCount;
 
+    /**
+     * The number of key-value mappings contained in this trie.
+     */
     transient int mSize;
 
+    /**
+     * The root of the trie, should never be {@code null}.
+     */
     transient Node<V> mRoot;
 
     public HashTrie() {

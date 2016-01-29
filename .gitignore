@@ -4,6 +4,9 @@
 *.iws
 .idea/
 
+.gitconfig
+checkstyle.cache
+
 ### Java template
 *.class
 

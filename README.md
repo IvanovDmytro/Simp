@@ -1,10 +1,33 @@
 #Simp
 
+Collection of the projects for Java and Android.
+
 ##Citizens
 
-###Groundskeeper Willie
+###Groundskeeper Willie 
+
+Utility project that contains reusable blocks, mainly data structures and algorithms.
 
 ##Download
+
+Jar file, Maven and Gradle dependencies are available for each project.
+
+To find download details and limitation for each project please proceed to its page.
+
+Otherwise almost all project have following dependency format
+
+for Maven
+```xml
+<dependency>
+  <groupId>org.simp</groupId>
+  <artifactId>project_name</artifactId>
+  <version>version_code</version>
+</dependency>
+```
+or Gradle:
+```groovy
+compile 'org.simp:project_name:version_code'
+```
 
 
 ##License

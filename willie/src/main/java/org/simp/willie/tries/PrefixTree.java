@@ -19,6 +19,18 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * This class provides a specific view over {@code Trie} that has {@code Boolean}
+ * as an value, because it takes less space that any other reference data type.
+ *
+ * The whole purpose of this class is to provide easy to use suggestions
+ * data structure, so user of the class would not have to deal with {@code Trie}
+ * API and can use adopted to this problem more comfortable API.
+ *
+ * @author Dmytro Ivanov
+ * @see HashTrie
+ * @see Trie
+ */
 public class PrefixTree implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -4056615874998275521L;
@@ -31,7 +43,7 @@ public class PrefixTree implements Serializable, Cloneable {
     Trie<Boolean> mTrie;
 
     /**
-     * Constructs new {@link PrefixTree} that is backed up by {@link HashTrie}.
+     * Constructs new {@code PrefixTree} that is backed up by {@code HashTrie}.
      */
     public PrefixTree() {
         this(new HashTrie<Boolean>());
@@ -112,16 +124,52 @@ public class PrefixTree implements Serializable, Cloneable {
         return tree;
     }
 
+    /**
+     * Compares the specified object with this tree for equality.  Returns
+     * {@code true} if the given object is also a tree and the two trees
+     * have same values.  More formally, two trees {@code t1} and
+     * {@code t2} are same if {@code t1.mTrie().equals(t2.mTrie)}.
+     *
+     * @param object the object to be compared for equality with this tree
+     *
+     * @return {@code true} if the specified object is equal to this tree
+     *
+     * @implSpec
+     * This implementation first checks if the specified object is this tree;
+     * if so it returns {@code true}.  Then, it checks if the specified
+     * tree backed up with trie that is equals to trie that
+     * backs up this tree.
+     */
     @Override
     public boolean equals(Object object) {
         return object == this || object instanceof PrefixTree && mTrie.equals(((PrefixTree) object).mTrie);
     }
 
+    /**
+     * Returns the hash code value for this tree. The hash code of a tree is
+     * defined to be hashcode of backing trie.
+     *
+     * @return the hash code value for this tree.
+     *
+     * @implSpec
+     * This implementation returns {@link AbstractTrie#hashCode()} of backing up trie.
+     *
+     * @see AbstractTrie#hashCode()
+     */
     @Override
     public int hashCode() {
         return mTrie.hashCode();
     }
 
+    /**
+     * Returns a string representation of this tree.  The string representation
+     * consists of a list of value in the order returned by the
+     * tree's {@code values} view's iterator, enclosed in braces
+     * ({@code "{}"}).  Adjacent values are separated by the characters
+     * {@code ", "} (comma and space).
+     *
+     * @return a string representation of this tree
+     */
     @Override
     public String toString() {
         final Iterator<String> valuesIterator = values().iterator();
