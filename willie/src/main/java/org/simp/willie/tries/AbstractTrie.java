@@ -55,6 +55,8 @@ public abstract class AbstractTrie<V> implements Trie<V> {
      * {@code equals} method works properly across different implementations
      * of the {@code Trie} interface.
      *
+     * Operation time complexity is O(N), where N is number of mappings in a trie.
+     *
      * @param object the object to be compared for equality with this trie
      *
      * @return {@code true} if the specified object is equal to this trie
@@ -102,6 +104,8 @@ public abstract class AbstractTrie<V> implements Trie<V> {
      * {@code t1} and {@code t2}, as required by the general contract of
      * {@link Object#hashCode}.
      *
+     *  Operation time complexity is O(N), where N is number of mappings in a trie.
+     *
      * @return the hash code value for this trie
      *
      * @implSpec
@@ -131,6 +135,8 @@ public abstract class AbstractTrie<V> implements Trie<V> {
      * the key followed by an equals sign ({@code "="}) followed by the
      * associated value.  Keys and values are converted to strings as by
      * {@link String#valueOf(Object)}.
+     *
+     * Operation time complexity is O(N), where N is number of mappings in a trie.
      *
      * @return a string representation of this trie
      */

@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.AbstractMap;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -82,6 +83,14 @@ public class HashTrieTest {
     @Test(expected = NullPointerException.class)
     public void testPut_NullValue() {
         mTrie.put("aads", null);
+    }
+
+    @Test
+    public void testPut_Replace() {
+        assertThat(mTrie.put("abcdfg", mObject1), is(nullValue()));
+        assertThat(mTrie.put("abcdfg", mObject2), is(mObject1));
+
+        assertThat(mTrie.get("abcdfg"), is(mObject2));
     }
 
     @Test
@@ -209,19 +218,19 @@ public class HashTrieTest {
         mTrie.remove("sdfsdf dfsdf");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testRemove_ValueNotThere() {
         mTrie.put("a", mObject1);
         mTrie.put("b", mObject2);
 
-        mTrie.remove("a1");
+        assertThat(mTrie.remove("a1"), is(nullValue()));
     }
 
     @Test
     public void testRemove_SingleValue() {
         mTrie.put("abc", mObject1);
 
-        mTrie.remove("abc");
+        assertThat(mTrie.remove("abc"), is(mObject1));
 
         assertThat(mTrie.mRoot.hasChildren(), is(false));
         assertThat(mTrie.mRoot.hasValue(), is(false));

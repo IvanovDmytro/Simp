@@ -21,9 +21,21 @@ a common prefix of the string associated with that node, and the root is associa
 Values are not necessarily associated with every node. Rather, values tend only to be associated with 
 leaves, and with some inner nodes that correspond to keys of interest.
 
-![trie](https://upload.wikimedia.org/wikipedia/commons/b/be/Trie_example.svg)
+Ternary Trie
+![ternary trie](https://upload.wikimedia.org/wikipedia/commons/b/be/Trie_example.svg)
+
+Hash Trie
+![hash trie](https://www.cs.duke.edu/courses/fall07/cps100e/class/05_Tries/trie.jpg)
 
 For more info please [visit][1].
+
+###Trees
+
+TBD, next in a road map
+
+###Graphs
+
+TBD, next after trees in a road map
 
 ##Download
 
