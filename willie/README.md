@@ -22,9 +22,11 @@ Values are not necessarily associated with every node. Rather, values tend only 
 leaves, and with some inner nodes that correspond to keys of interest.
 
 Ternary Trie
+
 ![ternary trie](https://upload.wikimedia.org/wikipedia/commons/b/be/Trie_example.svg)
 
 Hash Trie
+
 ![hash trie](http://4.bp.blogspot.com/-Kaf92KPzei0/USp9C3KIn3I/AAAAAAAABp0/KVpMJeFz6eE/s1600/Trie.png)
 
 For more info please [visit][1].
