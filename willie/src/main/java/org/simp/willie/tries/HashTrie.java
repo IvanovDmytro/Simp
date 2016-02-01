@@ -168,21 +168,51 @@ public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializabl
         mRoot = new Node<>();
     }
 
+    /**
+     * Returns the number of key-value mappings in this trie.
+     *
+     * Operation time complexity is O(1).
+     *
+     * @return the number of key-value mappings in this trie
+     */
     @Override
     public int size() {
         return mSize;
     }
 
+    /**
+     * Returns {@code true} if this trie contains no key-value mappings.
+     *
+     * Operation time complexity is O(1).
+     *
+     * @return {@code true} if this trie contains no key-value mappings
+     */
     @Override
     public boolean isEmpty() {
         return mSize == 0;
     }
 
+    /**
+     * Returns {@code true} if this trie contains a mapping for the specified key.
+     *
+     * Operation time complexity is O(S), where S is length of key.
+     *
+     * @param   key   The key whose presence in this trie is to be tested
+     * @return {@code true} if this trie contains a mapping for the specified key.
+     */
     @Override
     public boolean containsKey(String key) {
         return get(key) != null;
     }
 
+    /**
+     * Returns the value to which the specified key is mapped,
+     * or {@code null} if this trie contains no mapping for the key.
+     *
+     * Operation time complexity is O(S), where S is length of key.
+     *
+     * @see #put(String, Object)
+     */
     @Override
     public V get(String key) {
         checkKey(key);
@@ -191,6 +221,10 @@ public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializabl
         return node == null ? null : node.mValue;
     }
 
+    /**
+     * Find node that contain value for a given {@code key}.
+     * If there are no key in a trie, {@code null} is returned.
+     */
     final Node<V> findNode(String key) {
         int keyIndex = 0;
         Node<V> node = mRoot;
@@ -203,6 +237,18 @@ public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializabl
         return node;
     }
 
+    /**
+     * Associates the specified value with the specified key in this trie.
+     * If the trie previously contained a mapping for the key, the old
+     * value is replaced.
+     *
+     * Operation time complexity is O(S), where S is length of key.
+     *
+     * @param key key with which the specified value is to be associated
+     * @param value value to be associated with the specified key
+     * @return the previous value associated with {@code key}, or
+     *         {@code null} if there was no mapping for {@code key}.
+     */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     @Override
     public V put(String key, V value) {
@@ -224,15 +270,31 @@ public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializabl
             node = nextNode;
         }
 
-        if (!node.hasValue()) {
+        V returnValue = null;
+
+        if (node.hasValue()) {
+            returnValue = node.mValue;
+        } else {
             mSize++;
         }
 
         node.mValue = value;
 
-        return value;
+        return returnValue;
     }
 
+    /**
+     * Removes the mapping for the specified key from this trie if present.
+     *
+     * Operation time complexity is O(S), where S is length of key.
+     *
+     * @implSpec After item is removed from the trie, trie compression
+     * is running.
+     *
+     * @param  key key whose mapping is to be removed from the map
+     * @return the previous value associated with {@code key}, or
+     *         {@code null} if there was no mapping for {@code key}.
+     */
     @Override
     public V remove(String key) {
         checkKey(key);
@@ -252,7 +314,7 @@ public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializabl
         }
 
         if (node == null || !node.hasValue()) {
-            throw new IllegalArgumentException("Could not remove node that does not exists.");
+            return null;
         }
 
         final V value = node.mValue;
@@ -273,6 +335,10 @@ public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializabl
         return value;
     }
 
+    /**
+     * Check given {@code key} if it satisfies conditions to be the key of trie.
+     * Key should not be null, empty or contain anything except digits ot letters.
+     */
     final void checkKey(String key) {
         if (key == null) {
             throw new NullPointerException("Key could not be null.");
@@ -289,12 +355,23 @@ public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializabl
         }
     }
 
+    /**
+     * Check given value if it can be putted into te trie.
+     * Value should not be null.
+     */
     final void checkValue(V value) {
         if (value == null) {
             throw new NullPointerException("Value could not be null.");
         }
     }
 
+    /**
+     * Removes all of the mappings from this trie.
+     *
+     * Operation time complexity is O(1).
+     *
+     * The trie will be empty after this call returns.
+     */
     @Override
     public void clear() {
         mModCount++;
@@ -302,12 +379,33 @@ public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializabl
         mRoot = new Node<>();
     }
 
+    /**
+     * Returns a {@link Set} view of the keys contained in this trie.
+     * The set is backed by the trie, so changes to the trie are
+     * reflected in the set, vice-versa is not supported.  If the trie
+     * is modified while an iteration over the set is in progress , the results of
+     * the iteration are undefined.  The set does not supports modification
+     * operations.
+     *
+     * @return a set view of the keys contained in this trie
+     */
     @Override
     public Set<String> keys() {
         Set<String> keySet;
         return (keySet = mKeysView) == null ? (mKeysView = new KeySet(mRoot, "")) : keySet;
     }
 
+    /**
+     * Returns a {@link Set} view of the keys contained in this trie that start with
+     * given prefix. The set is backed by the trie, so changes to the trie are
+     * reflected in the set, vice-versa is not supported.  If the trie
+     * is modified while an iteration over the set is in progress , the results of
+     * the iteration are undefined.  The set does not supports modification
+     * operations.
+     *
+     * @param prefix the prefix that will be used to filter keys
+     * @return a set view of the keys contained in this trie
+     */
     @Override
     public Set<String> keysWithPrefix(String prefix) {
         checkKey(prefix);
@@ -337,6 +435,16 @@ public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializabl
 
     }
 
+    /**
+     * Returns a {@link Collection} view of the values contained in this trie.
+     * The collection is backed by the trie, so changes to the trie are
+     * reflected in the collection, vice-versa is not supported.  If the trie is
+     * modified while an iteration over the collection is in progress
+     * the results of the iteration are undefined. The collection does not supports
+     * modification operations.
+     *
+     * @return a collection view of the values contained in this trie
+     */
     @Override
     public Collection<V> values() {
         Collection<V> valuesCollection;
@@ -355,6 +463,15 @@ public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializabl
 
     }
 
+    /**
+     * Returns a {@link Set} view of the mappings contained in this trie.
+     * The set is backed by the trie, so changes to the trie are
+     * reflected in the set, vice-versa is not supported.  If the trie is modified
+     * while an iteration over the set is in progress  the results of the iteration are undefined.
+     * The set does not supports modification operations.
+     *
+     * @return a set view of the mappings contained in this trie
+     */
     @Override
     public Set<Map.Entry<String, V>> entrySet() {
         Set<Map.Entry<String, V>> entriesView;
@@ -481,6 +598,8 @@ public class HashTrie<V> extends AbstractTrie<V> implements Trie<V>, Serializabl
     /**
      * Returns a shallow copy of this {@code HashTrie} instance: the keys and
      * values themselves are not cloned.
+     *
+     * Operation time complexity is O(N), where N is number of mappings in a trie.
      *
      * @return a shallow copy of this trie
      */
