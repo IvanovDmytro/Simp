@@ -25,7 +25,7 @@ Ternary Trie
 ![ternary trie](https://upload.wikimedia.org/wikipedia/commons/b/be/Trie_example.svg)
 
 Hash Trie
-![hash trie](https://www.cs.duke.edu/courses/fall07/cps100e/class/05_Tries/trie.jpg)
+![hash trie](http://4.bp.blogspot.com/-Kaf92KPzei0/USp9C3KIn3I/AAAAAAAABp0/KVpMJeFz6eE/s1600/Trie.png)
 
 For more info please [visit][1].
 
